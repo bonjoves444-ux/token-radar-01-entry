@@ -307,21 +307,41 @@ function fitModelShallow(comps: SnapshotProtocol[]): (p: SnapshotProtocol) => nu
   };
 }
 
-// Board selection: the whole watchlist, then the largest pre-token
-// protocols below the floor that pass the watchlist's own product filters
-// (no wrapped, staked or bridged product, no version suffix, no exchange
-// name up front). The giants the rule leaves out — exchange chains, bridges
-// and wrapped products that record no token only because their token trades
-// under another name — are not launches, so they are not ranked.
+// Board selection: the whole watchlist, then the pre-token protocols
+// above the floor that pass the watchlist's own rule, then the largest
+// pre-token protocols below the floor that pass the watchlist's own
+// product filters. The watchlist is a floor, never a ceiling: a protocol
+// the list leaves out is no worse a subject, and the board may rank
+// protocols the watchlist does not name. Above the floor the rule is the
+// watchlist's own, read off the snapshot: TVL at or above the floor, and
+// no token recorded at all — no market cap, no CoinGecko id, no symbol.
+// Morpho Blue is the line the rule draws: $10.41B of TVL, but its record
+// carries symbol MORPHO, so its token already trades and it is not
+// ranked. The giants the rule leaves out — exchange chains, bridges
+// and wrapped products that record no token only because their token
+// trades under another name — are not launches, so they are not ranked.
 const VERSION_SUFFIX = /\s(V\d+(\.\d+)?|v\d+(\.\d+)?|\d+\.\d+)$/;
 const EXCHANGE_PREFIX = ["Binance", "Coinbase", "Bybit", "Kraken", "Bitget", "OKX", "Bitfinex", "Gemini"];
 
 export function passesProductFilters(p: SnapshotProtocol): boolean {
   if (p.category !== null && EXCLUDED_CATEGORIES.has(p.category)) return false;
+  // A category that names a bridge or a wrapper is a bridge or a wrapped
+  // product even when its label is not one of the exact excluded strings,
+  // and neither is a launch: a cross-chain bridge moves a token that
+  // already trades, and a wrapped stablecoin is that token in new paper.
+  if (p.category !== null && /bridge|wrapper/i.test(p.category)) return false;
   if (VERSION_SUFFIX.test(p.name)) return false;
   if (/\bwrapped\b|\bstaked\b|\bstaking\b/i.test(p.name)) return false;
   if (EXCHANGE_PREFIX.some((prefix) => p.name.startsWith(prefix))) return false;
   return true;
+}
+
+// Whether a protocol's record carries no token at all: the kit's own
+// pre-token test — no market cap, no CoinGecko id, no symbol. A market
+// cap of null alone does not prove it: a record can carry a symbol for
+// a token that trades while recording no market cap for it.
+export function recordsNoToken(p: SnapshotProtocol): boolean {
+  return p.mcap_usd === null && p.gecko_id === null && p.symbol === null;
 }
 
 export function selectBoard(snapshot: Snapshot, size: number): SnapshotProtocol[] {
@@ -329,13 +349,19 @@ export function selectBoard(snapshot: Snapshot, size: number): SnapshotProtocol[
   const watchlist = snapshot.watchlist
     .map((slug) => bySlug.get(slug))
     .filter((p): p is SnapshotProtocol => p !== undefined);
+  const aboveFloor = snapshot.protocols
+    .filter((p) => p.tvl_usd >= snapshot.floor_usd)
+    .filter((p) => !snapshot.watchlist.includes(p.slug))
+    .filter(recordsNoToken)
+    .filter(passesProductFilters)
+    .sort((a, b) => b.tvl_usd - a.tvl_usd);
   const early = snapshot.protocols
     .filter((p) => p.mcap_usd === null)
     .filter((p) => p.tvl_usd < snapshot.floor_usd)
     .filter((p) => !snapshot.watchlist.includes(p.slug))
     .filter(passesProductFilters)
     .sort((a, b) => b.tvl_usd - a.tvl_usd);
-  const picked = [...watchlist];
+  const picked = [...watchlist, ...aboveFloor];
   for (const p of early) {
     if (picked.length >= size) break;
     picked.push(p);

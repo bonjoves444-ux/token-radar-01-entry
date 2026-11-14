@@ -30,10 +30,16 @@ of comparables land within ×0.36–×2.78 of the fitted curve in-sample.
 
 ## The board
 
-The whole 40-protocol watchlist, plus the 158 largest pre-token protocols
-below the $50M floor that pass the watchlist's own product filters. Top of
-the board on this snapshot: Steakhouse Financial $125.0M, Gauntlet $93.0M,
-Veda $87.3M, USDD $70.5M, Upshift $48.6M.
+The whole 40-protocol watchlist, plus the 18 pre-token protocols above
+the $50M floor that pass the watchlist's own rule, plus the 140 largest
+pre-token protocols below the floor that pass the watchlist's own product
+filters. The watchlist is a floor, never a ceiling: Sentora Curator is
+the largest name it leaves out, $2.76B of TVL in Risk Curators, and the
+model prices its launch at $123.2M, second on the board. Morpho Blue is
+left out on the same line: $10.41B of TVL, but its record carries symbol
+MORPHO, so its token already trades. Top of the board on this snapshot:
+Steakhouse Financial $125.0M, Sentora Curator $123.2M, Gauntlet $93.0M,
+Veda $87.3M, USDD $70.5M.
 
 Every row carries a farm plan for a $1,000 working stake: concrete steps
 with a dollar cost and a setup time on the protocol's primary chain, plus a
