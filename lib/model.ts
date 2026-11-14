@@ -355,8 +355,14 @@ export function selectBoard(snapshot: Snapshot, size: number): SnapshotProtocol[
     .filter(recordsNoToken)
     .filter(passesProductFilters)
     .sort((a, b) => b.tvl_usd - a.tvl_usd);
+  // Below the floor the pre-token test is the same triple-null test as
+  // above it — no market cap, no CoinGecko id, no symbol. A null market
+  // cap alone lets token products through: a record can carry a symbol
+  // for a token that trades while recording no market cap for it, and
+  // 45 such rows reached the board on that single-null test. They are
+  // replaced here by the strict pre-token rows below them by TVL.
   const early = snapshot.protocols
-    .filter((p) => p.mcap_usd === null)
+    .filter(recordsNoToken)
     .filter((p) => p.tvl_usd < snapshot.floor_usd)
     .filter((p) => !snapshot.watchlist.includes(p.slug))
     .filter(passesProductFilters)

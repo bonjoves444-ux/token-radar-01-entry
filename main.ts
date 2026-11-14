@@ -28,7 +28,7 @@ import {
 } from "./lib/model.ts";
 import type { Snapshot, SnapshotProtocol } from "./lib/model.ts";
 
-const TITLE = "Token Launch Radar — 198 pre-token protocols priced off 82 comparable launches";
+const TITLE = "Token Launch Radar — 196 pre-token protocols priced off 82 comparable launches";
 
 function argValue(argv: string[], flag: string): string | null {
   const at = argv.indexOf(flag);

@@ -1,6 +1,6 @@
 # Token Launch Radar — round two
 
-198 pre-token protocols priced off 82 comparable launches, from the sealed
+196 pre-token protocols priced off 82 comparable launches, from the sealed
 snapshot alone. MIT licensed.
 
 ## The model
@@ -31,9 +31,19 @@ of comparables land within ×0.36–×2.78 of the fitted curve in-sample.
 ## The board
 
 The whole 40-protocol watchlist, plus the 18 pre-token protocols above
-the $50M floor that pass the watchlist's own rule, plus the 140 largest
+the $50M floor that pass the watchlist's own rule, plus the 138 largest
 pre-token protocols below the floor that pass the watchlist's own product
-filters. The watchlist is a floor, never a ceiling: Sentora Curator is
+filters. Pre-token means the kit's triple-null test, applied above the
+floor and below it alike: no market cap, no CoinGecko id, no symbol. An
+earlier build tested market cap alone below the floor and let 45
+token-product rows through; they are out, replaced by the 43 strict
+pre-token rows the snapshot holds below them by TVL. That is why the
+board holds 196 rows, not 198: the strict pool — 40 watchlist names plus
+156 strict names outside it — is exhausted at 196, and no token row is
+kept to fill it. Saturn stays on the board because the house watchlist
+names it and the watchlist is taken whole, while Circle Gateway and
+USDCx stay out under the same bridge and wrapper tightening. The
+watchlist is a floor, never a ceiling: Sentora Curator is
 the largest name it leaves out, $2.76B of TVL in Risk Curators, and the
 model prices its launch at $123.2M, second on the board. Morpho Blue is
 left out on the same line: $10.41B of TVL, but its record carries symbol
