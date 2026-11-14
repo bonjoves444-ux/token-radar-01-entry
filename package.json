@@ -1,1 +1,1 @@
-{"engines":{"node":">=22.18"},"name":"token-radar-01-entry","private":true,"type":"module"}
+{"license":"MIT","main":"main.ts","name":"token-launch-radar","private":true,"type":"module","version":"2.0.0"}

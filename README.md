@@ -1,60 +1,57 @@
-# Token Launch Radar — 198 pre-token protocols priced off traded comparables
+# Token Launch Radar — round two
 
-Build the best token launch radar (make.fun `token-radar-01`). The program reads
-the sealed DefiLlama snapshot, fits a comparables model on the snapshot's own
-traded tokens, and writes a static dashboard that ranks the pre-token protocols
-by implied launch value, with a detail view and a six-step farm plan for each.
+198 pre-token protocols priced off 82 comparable launches, from the sealed
+snapshot alone. MIT licensed.
 
-## The model (radar-2)
+## The model
 
-The fit set is the 94 protocols in the snapshot whose token already trades,
-excluding centralised exchanges, bridges and liquid-staking products. On them
-the model fits a power law of market cap on TVL:
+Fitted at run time from the snapshot's own traded tokens, in three stages
+(`lib/model.ts`, `fitModel`):
 
-    log10(mcap) = 3.9077 + 0.4049 x log10(TVL)
+1. **Comparables.** A traded token counts when its category is not Bridge,
+   Canonical Bridge, Liquid Staking, Liquid Restaking, Restaked BTC or CEX,
+   and its market-cap-to-TVL ratio sits between 0.01 and 5. That drops dead
+   tokens (ratio under 0.01) and tokens whose market cap is driven by a
+   business outside the recorded TVL (ratio over 5, up to 400x). 82 of the
+   snapshot's 128 traded tokens with a market cap above zero survive.
+2. **Size curve.** `log10(market cap) = intercept + slope * log10(TVL)`,
+   fitted by least squares. On this snapshot: intercept 2.25, slope 0.62,
+   R² 0.30.
+3. **Category, seasoning, momentum.** Category factors are shrunk mean
+   residuals (`n / (n + 4)`, capped 0.4x–2.0x), trusted only with at least
+   three comparables — Risk Curators and Onchain Capital Allocator each have
+   one, so they carry 1.00. Seasoning is `log10(age in years + 0.25)`;
+   momentum is the 7-day TVL change clipped to ±20%. Full fit R² 0.31.
 
-then multiplies by a per-category factor from the median traded residual in
-that category (shrunk toward 1.00 when the category is thin, 1.00 when it has
-fewer than four traded tokens), then adjusts for seven-day TVL growth
-(1 + 0.25 x clamped growth) and for maturity (0.70 + 0.30 x age capped at
-1,095 days; unknown age counts as 365 days).
-
-Why a power law, not a flat multiple: in this snapshot the traded tokens'
-market-cap-to-TVL ratio falls hard with size — median 0.57 at $5-20M of TVL,
-0.17 at $50-200M, 0.03 above $1B. A flat multiple would price the biggest
-pre-token protocols at ten times what the biggest traded comparables trade at.
-
-How good the fit is: R-squared 0.10; pricing a traded token from its TVL alone
-misses its market cap by a median of 78% in-sample and 84% when the token is
-held out of the fit (leave-one-out). Every implied value is an order of
-magnitude, not a price target. The board ranks protocols; it does not predict
-that a token will launch, when it will, or what it will open at.
+Backtest (five-fold, folds dealt by slug order, each fold refitted): the
+median held-out error is ×3.11, with 34% of held-out comparables within ×2
+of their true market cap, 49% within ×3 and 65% within ×5. The middle half
+of comparables land within ×0.36–×2.78 of the fitted curve in-sample.
 
 ## The board
 
-198 rows: all 40 protocols on the snapshot's watchlist (TVL at or above the
-$50M floor, no token recorded, not a wrapped, staked or bridged product of a
-token that trades), plus the 158 largest other pre-token protocols below the
-floor, by TVL, excluding exchanges and versioned pools. Live-token protocols
-are kept apart in the Live view at the market's own values.
+The whole 40-protocol watchlist, plus the 158 largest pre-token protocols
+below the $50M floor that pass the watchlist's own product filters. Top of
+the board on this snapshot: Steakhouse Financial $125.0M, Gauntlet $93.0M,
+Veda $87.3M, USDD $70.5M, Upshift $48.6M.
 
-Each row carries its implied value, the model's working (fitted base, category
-multiplier, growth and maturity multipliers), its three closest traded
-comparables in its own category, and a six-step farm plan built from its
-category, chains, TVL and age.
+Every row carries a farm plan for a $1,000 working stake: concrete steps
+with a dollar cost and a setup time on the protocol's primary chain, plus a
+Slice / $1k figure — the reader's pro-rata share of 10% of the implied
+launch value per $1,000 staked.
 
 ## Run it
 
-    mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts --input <kit>/input/snapshot.json
+```sh
+mkdir -p out && MAKEFUN_OUTPUT_DIR=out node main.ts --input ../input/snapshot.json
+```
 
-Node 22, standard library only, no install. The run is deterministic: two
-runs write the same bytes. Output: `board.json`, `data.js`, `dashboard/`,
-`screenshots/`, `dossier.json`.
+Node 22 or later, standard library only. The run is deterministic: same
+bytes across runs, no clock, no random source, no network. `main.ts`
+writes `board.json`, `dashboard/data.js`, copies `dashboard/` and
+`screenshots/`, and writes `dossier.json` with `buildDossier` from
+`vendor/makefun-board.ts`.
 
-## Files
-
-- `main.ts` — entrypoint: reads the snapshot, writes the board, data, dashboard, screenshots and dossier.
-- `lib/model.ts` — the fitted model, the board, the farm plans, the research note.
-- `vendor/makefun-board.ts` — make.fun's dossier library, copied from the kit.
-- `dashboard/` — the static page: board, filters, detail view per protocol, live view, research note. No network.
-- `screenshots/` — the board, a protocol detail view, a filtered view.
+Screenshots (1280×800) are taken from the built dashboard with a headless
+browser: `1-board.png` the board, `2-detail.png` a protocol detail view,
+`3-filtered.png` the watchlist filter.

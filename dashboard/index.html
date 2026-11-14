@@ -2,15 +2,63 @@
 <html lang="en">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Token Launch Radar — 198 pre-token protocols priced off traded comparables</title>
+<title>Token Launch Radar — 198 pre-token protocols priced off 82 comparable launches</title>
 <link rel="stylesheet" href="app.css">
 </head>
 <body>
-<a class="skip" href="#board">Skip to the board</a>
-<main id="board" tabindex="-1" aria-busy="true"></main>
-<noscript><p style="max-width:1180px;margin:0 auto;padding:20px">This dashboard needs JavaScript: it renders the ranked board from the data file beside it. The board itself is in board.json.</p></noscript>
-<script src="../data.js"></script>
+<header class="masthead">
+  <div class="masthead-inner">
+    <div>
+      <p class="kicker">TOKEN LAUNCH RADAR &middot; SNAPSHOT <span id="as-of"></span></p>
+      <h1>198 protocols record no token. Here is what each launch would be worth.</h1>
+      <p class="lede">Every value is read off the 82 comparable launches this snapshot already prices: size, category, seasoning and momentum.</p>
+    </div>
+    <div class="hero-stats" id="hero-stats"></div>
+  </div>
+</header>
+<main>
+  <section class="model-strip" id="model-strip"></section>
+  <section class="scatter-wrap">
+    <div class="scatter-head">
+      <h2>How a launch is priced</h2>
+      <p>Each dot is a traded token from this snapshot. The line is the fitted size curve; the band is where the middle half of comparables land.</p>
+    </div>
+    <div id="scatter"></div>
+  </section>
+  <section class="controls">
+    <input id="search" type="search" placeholder="Search protocols" aria-label="Search protocols">
+    <select id="category" aria-label="Filter by category"><option value="">All categories</option></select>
+    <select id="chain" aria-label="Filter by chain"><option value="">All chains</option></select>
+    <label class="check"><input id="watchlist-only" type="checkbox"> Watchlist only</label>
+    <label class="check"><input id="early-only" type="checkbox"> Early only</label>
+    <span class="count" id="row-count"></span>
+  </section>
+  <section id="detail"></section>
+  <section class="board-wrap">
+    <table id="board">
+      <thead>
+        <tr>
+          <th data-sort="rank">#</th>
+          <th data-sort="name">Protocol</th>
+          <th data-sort="category">Category</th>
+          <th data-sort="tvl_usd">TVL</th>
+          <th data-sort="change_7d">7d</th>
+          <th data-sort="age_years">Age</th>
+          <th data-sort="implied_value_usd">Implied value</th>
+          <th data-sort="x_tvl">&times; TVL</th>
+          <th data-sort="slice_per_1k_usd">Slice / $1k</th>
+          <th>Farm &middot; fees &middot; setup</th>
+        </tr>
+      </thead>
+      <tbody id="board-body"></tbody>
+    </table>
+  </section>
+  <section class="note" id="research-note"></section>
+  <footer class="foot">
+    <p>Implied values are this radar's own claim from the sealed snapshot, never a promise a token launches or a price it opens at. Gas fees are snapshot-date estimates; check live fees before acting. Protocols are said to record no token, never to have none.</p>
+  </footer>
+</main>
+<script src="data.js"></script>
 <script src="app.js"></script>
 </body>
 </html>
