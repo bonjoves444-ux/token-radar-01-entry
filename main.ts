@@ -153,7 +153,9 @@ function main(): void {
     rows,
   };
 
-  if (existsSync(outputDir)) rmSync(outputDir, { recursive: true, force: true });
+  if (existsSync(outputDir)) {
+    for (const f of readdirSync(outputDir)) rmSync(join(outputDir, f), { recursive: true, force: true });
+  }
   mkdirSync(join(outputDir, "dashboard"), { recursive: true });
   mkdirSync(join(outputDir, "screenshots"), { recursive: true });
 
